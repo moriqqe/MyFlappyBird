@@ -13,8 +13,8 @@ pygame.display.set_caption("My Flappy Bird")
 
 #using sprites
 
-bg = pygame.image.load('../flappy-bird-assets/sprites/background-day.png')
-base = pygame.image.load('../flappy-bird-assets/sprites/base.png')
+bg = pygame.image.load('flappy-bird-assets/sprites/background-day.png')
+base = pygame.image.load('flappy-bird-assets/sprites/base.png')
 
 #adding scroll script
 
