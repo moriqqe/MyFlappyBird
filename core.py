@@ -20,7 +20,7 @@ base = pygame.image.load('sprites/base.png')
 
 #adding scroll script
 base_scroll = 0
-scroll_speed = 8
+scroll_speed = 4
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -34,8 +34,22 @@ class Bird(pygame.sprite.Sprite):
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
+        self.vel = 0
+        self.cliked = False
+    def update(self): #physics
 
-    def update(self):  #making animation
+        #gravity
+        self.vel += 0.5
+        if self.vel > 8:
+            self.vel = 8
+        if self.rect.bottom < 450:
+            self.rect.y += int(self.vel)
+        #jump
+        if pygame.mouse.get_pressed()[0] == 1 and self.cliked == False:
+            self.vel = -10
+
+
+        #animations
         self.counter += 1
         flap_cooldown = 5
 
@@ -46,6 +60,9 @@ class Bird(pygame.sprite.Sprite):
                 self.index = 0
 
         self.image = self.images[self.index]
+
+        #rotate the bird
+        self.image = pygame.transform.rotate(self.images[self.index], self.vel * -1)
 
 
 
