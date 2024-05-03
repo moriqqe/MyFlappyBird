@@ -1,23 +1,16 @@
 import pygame
+import Sprites
+from Sprites import *
 from pygame import *
-from pygame.sprite import _Group
+from pygame.sprite import Group
 
 pygame.init()
 
-clock = pygame.time.Clock()
-fps = 60
-screen_width = 288
-screen_height = 512
-
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("My Flappy Bird")
-icon = pygame.image.load('Icon.ico')
+pygame.display.set_caption(gameTitle)
 pygame.display.set_icon(icon)
 
-
-#using sprites
-bg = pygame.image.load('sprites/background-day.png')
-base = pygame.image.load('sprites/base.png')
+bg = pygame.image.load(background)
+base = pygame.image.load(ground)
 
 #adding scroll script
 base_scroll = 0
