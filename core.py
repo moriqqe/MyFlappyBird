@@ -1,9 +1,12 @@
 import pygame
-import Sprites
-from Sprites import *
+import Worker
+import Groups
+from Groups import *
+from Worker import *
 from pygame import *
 from pygame.sprite import Group
 
+# pygame initialize
 pygame.init()
 
 pygame.display.set_caption(gameTitle)
@@ -11,10 +14,6 @@ pygame.display.set_icon(icon)
 
 bg = pygame.image.load(background)
 base = pygame.image.load(ground)
-
-#adding scroll script
-base_scroll = 0
-scroll_speed = 4
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self,x,y):
