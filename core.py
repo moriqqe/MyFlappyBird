@@ -1,5 +1,6 @@
 import pygame
 from pygame import *
+from pygame.sprite import _Group
 
 pygame.init()
 
@@ -64,19 +65,20 @@ class Bird(pygame.sprite.Sprite):
         #rotate the bird
         self.image = pygame.transform.rotate(self.images[self.index], self.vel * -1)
 
-
+#pipes
+class Pipe(pygame.sprite.Sprite):
+    def __init__(self, x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('sprites/pipe-green.png')
+        self.rect = self.image.get_rect()
+        self.rect.topleft = [x,y]
 
 
 bird_group = pygame.sprite.Group()
+pipe_group = pygame.sprite.Group()
 
 flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
-
-
-
-
-
-
 
 
 run = True
