@@ -28,19 +28,36 @@ class Bird(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.vel = 0
-        self.cliked = False
+        self.clicked = False
     def update(self): #physics
-
         #gravity
         self.vel += 0.5
         if self.vel > 8:
             self.vel = 8
         if self.rect.bottom < 450:
             self.rect.y += int(self.vel)
-        #jump
-        if pygame.mouse.get_pressed()[0] == 1 and self.cliked == False:
+
+        #jump physics
+        keys = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            if event.type == pygame.FINGERDOWN and not self.clicked:
+                self.clicked = True
+                self.vel = -10
+
+
+        if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+            self.clicked = True
             self.vel = -10
 
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+
+        if keys[pygame.K_SPACE] and self.clicked == False:
+            self.clicked = True
+            self.vel = -10
+
+        if self.rect.bottom <= 0:
+            self.rect.y += int(self.vel)
 
         #animations
         self.counter += 1
