@@ -13,6 +13,8 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 #scroll script
 base_scroll = 0
 scroll_speed = 4
+flying = False
+game_over = False
 
 
 #ingame sprites

@@ -30,49 +30,49 @@ class Bird(pygame.sprite.Sprite):
         self.vel = 0
         self.clicked = False
     def update(self): #physics
-        #gravity
-        self.vel += 0.5
-        if self.vel > 8:
-            self.vel = 8
-        if self.rect.bottom < 450:
-            self.rect.y += int(self.vel)
+        # gravity
+        if flying == True:
 
-        #jump physics
-        keys = pygame.key.get_pressed()
-        for event in pygame.event.get():
-            if event.type == pygame.FINGERDOWN and not self.clicked:
+            self.vel += 0.5
+            if self.vel > 8:
+                self.vel = 8
+            if self.rect.bottom < 450:
+                self.rect.y += int(self.vel)
+
+            # jump physics
+        if game_over == False:
+            keys = pygame.key.get_pressed()
+
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
                 self.clicked = True
                 self.vel = -10
 
+            if keys[pygame.K_SPACE] and not self.clicked:
+                self.clicked = True
+                self.vel = -10
 
-        if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
-            self.clicked = True
-            self.vel = -10
+            if not any(pygame.mouse.get_pressed()) and not keys[pygame.K_SPACE]:
+                self.clicked = False
 
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.clicked = False
+            if self.rect.bottom <= 0:
+                self.rect.y += int(self.vel)
+            # animations
+            self.counter += 1
+            flap_cooldown = 5
 
-        if keys[pygame.K_SPACE] and self.clicked == False:
-            self.clicked = True
-            self.vel = -10
+            if self.counter > flap_cooldown:
+                self.counter = 0
+                self.index += 1
+                if self.index >= len(self.images):
+                    self.index = 0
 
-        if self.rect.bottom <= 0:
-            self.rect.y += int(self.vel)
+            self.image = self.images[self.index]
 
-        #animations
-        self.counter += 1
-        flap_cooldown = 5
+            # rotate the bird
+            self.image = pygame.transform.rotate(self.images[self.index], self.vel * -1)
+        else:
+            self.image = pygame.transform.rotate(self.images[self.index], -60)
 
-        if self.counter > flap_cooldown:
-            self.counter = 0
-            self.index += 1
-            if self.index >= len(self.images):
-                self.index = 0
-
-        self.image = self.images[self.index]
-
-        #rotate the bird
-        self.image = pygame.transform.rotate(self.images[self.index], self.vel * -1)
 
 #pipes
 class Pipe(pygame.sprite.Sprite):
@@ -86,6 +86,8 @@ class Pipe(pygame.sprite.Sprite):
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
 
+
+
 flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
 
@@ -97,12 +99,19 @@ while run:
 
     #background & base
     screen.blit(bg, (0,0))
-
     screen.blit(base, (base_scroll, 450))
-    base_scroll -= scroll_speed
+
+    if game_over == False:
+        base_scroll -= scroll_speed
 
     bird_group.draw(screen)
     bird_group.update()
+
+    #cheking for game_over
+    if flappy.rect.bottom > 450:
+        game_over = True
+        flying = False
+
 
     if abs(base_scroll) > 50:
         base_scroll = 0
@@ -111,6 +120,8 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == MOUSEBUTTONDOWN and flying == False and game_over == False:
+            flying = True
     pygame.display.update()
 
 pygame.quit()
