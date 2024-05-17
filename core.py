@@ -99,7 +99,7 @@ class Bird(pygame.sprite.Sprite):
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, x,y, position):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('sprites/pipe-green.png')
+        self.image = pygame.image.load(pipes_sprite)
         self.rect = self.image.get_rect()
         #position 1 is from the top, -1 is from the bottom
         if position == 1:
@@ -110,8 +110,9 @@ class Pipe(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x -= scroll_speed
-        if self.rect.right < 200:
+        if self.rect.right < 0:
             self.kill()
+
 
 def nickname_input():
     input_active = True
@@ -167,17 +168,19 @@ while run:
             btm_pipe = Pipe(screen_width, int(screen_height / 2) + pipe_height, -1)
             top_pipe = Pipe(screen_width, int(screen_height / 2) + pipe_height, 1)
             pipe_group.add(btm_pipe)
-            pipe_group.add(btm_pipe)
+            pipe_group.add(top_pipe)
             last_pipe = time_now
 
         base_scroll -= scroll_speed
-        if abs(ground_scroll) = 35:
-            ground_scroll = 0
+
     bird_group.draw(screen)
     bird_group.update()
+    pipe_group.draw(screen)
+    pipe_group.update()
 
     #collision
     if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0:
+        scroll_speed = 0
         game_over = True
     #cheking for game_over
     if flappy.rect.bottom >= 450:

@@ -23,7 +23,7 @@ my_font = 'flappy-font.ttf'
 #ingame sprites
 ground = 'sprites/base.png'
 background = 'sprites/background-day.png'
-
+pipes_sprite = 'sprites/pipe-green.png'
 
 #icon
 icon = pygame.image.load('icon.ico')
