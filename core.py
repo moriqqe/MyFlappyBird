@@ -5,8 +5,8 @@ from Groups import *
 from Worker import *
 from pygame import *
 from pygame.sprite import Group
-
-# pygame initialize
+from pygame.locals import *
+#pygame initialize
 pygame.init()
 
 pygame.display.set_caption(gameTitle)
@@ -14,6 +14,17 @@ pygame.display.set_icon(icon)
 
 bg = pygame.image.load(background)
 base = pygame.image.load(ground)
+
+#Load front
+font = pygame.font.Font(my_font, 17)
+
+
+#font function
+def draw_text(text,font, color, surface, x,y):
+    textobj = font.render(text, True, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(textobj, textrect)
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -31,6 +42,7 @@ class Bird(pygame.sprite.Sprite):
         self.clicked = False
     def update(self): #physics
         # gravity
+
         if flying == True:
 
             self.vel += 0.5
@@ -38,6 +50,9 @@ class Bird(pygame.sprite.Sprite):
                 self.vel = 8
             if self.rect.bottom < 450:
                 self.rect.y += int(self.vel)
+            if self.rect.top < 0:
+                self.rect.top = 0
+                self.vel = 0
 
             # jump physics
         if game_over == False:
@@ -82,6 +97,30 @@ class Pipe(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = [x,y]
 
+def nickname_input():
+    input_active = True
+    nickname = ""
+    while input_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    nickname = nickname[:-1]
+                else:
+                    nickname += event.unicode
+        screen.fill((0, 0, 0))
+        draw_text('Enter your nickname:', font, (255, 255, 255), screen, 50, 200)
+        draw_text(nickname, font, (255, 255, 255),screen, 50, 250)
+        pygame.display.update()
+
+    return nickname
+nickname = nickname_input()
+print(f"Nickname: {nickname}")
+
 
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
@@ -91,7 +130,7 @@ pipe_group = pygame.sprite.Group()
 flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
 
-
+top_border = 0
 run = True
 while run:
 
@@ -111,10 +150,11 @@ while run:
     if flappy.rect.bottom > 450:
         game_over = True
         flying = False
-
-
     if abs(base_scroll) > 50:
         base_scroll = 0
+
+    #draw nickname
+    draw_text(nickname, font, (255, 255, 255), screen, 10, 10)
 
 
     for event in pygame.event.get():
