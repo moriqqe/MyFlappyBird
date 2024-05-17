@@ -32,6 +32,8 @@ def draw_text(text,font, color, surface, x,y):
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
 
+
+
 class Bird(pygame.sprite.Sprite):
     def __init__(self,x,y):
         pygame.sprite.Sprite.__init__(self)
@@ -176,6 +178,19 @@ while run:
     bird_group.update()
     pipe_group.draw(screen)
     pipe_group.update()
+    # checking the score
+    if len(pipe_group) > 0:
+        bird = bird_group.sprites()[0]
+        first_pipe = pipe_group.sprites()[0]
+        if bird.rect.left > first_pipe.rect.left and bird.rect.right < first_pipe.rect.right and not pass_pipe:
+            pass_pipe = True
+        if pass_pipe:
+            if bird.rect.left > first_pipe.rect.right:
+                score += 1
+                pass_pipe = False
+
+    print(score)
+    draw_text(str(score), (pygame.font.Font(my_font, 50)), (255, 255, 255), screen, int(130), 20)
 
     #collision
     if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0:
@@ -189,7 +204,7 @@ while run:
         base_scroll = 0
 
     #draw nickname
-    draw_text(nickname, font, (255, 255, 255), screen, 10, 10)
+    draw_text(nickname, (font), (255, 255, 255), screen, 10, 10)
 
 
     for event in pygame.event.get():

@@ -9,6 +9,8 @@ screen_width = 288
 screen_height = 512
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((screen_width, screen_height))
+score = 0
+
 
 #scroll script
 base_scroll = 0
@@ -16,7 +18,7 @@ scroll_speed = 4
 
 flying = False
 game_over = False
-
+pass_pipe = False
 #Font
 my_font = 'flappy-font.ttf'
 
