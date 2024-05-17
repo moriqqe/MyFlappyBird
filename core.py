@@ -47,10 +47,9 @@ class Bird(pygame.sprite.Sprite):
         self.vel = 0
         self.clicked = False
     def update(self): #physics
-        # gravity
 
+        #gravity
         if flying == True:
-
             self.vel += 0.5
             if self.vel > 8:
                 self.vel = 8
@@ -60,7 +59,7 @@ class Bird(pygame.sprite.Sprite):
                 self.rect.top = 0
                 self.vel = 0
 
-            # jump physics
+        #jump physics
         if game_over == False:
             keys = pygame.key.get_pressed()
 
@@ -77,7 +76,7 @@ class Bird(pygame.sprite.Sprite):
 
             if self.rect.bottom <= 0:
                 self.rect.y += int(self.vel)
-            # animations
+            #animations
             self.counter += 1
             flap_cooldown = 5
 
@@ -89,7 +88,7 @@ class Bird(pygame.sprite.Sprite):
 
             self.image = self.images[self.index]
 
-            # rotate the bird
+            #rotate the bird
             self.image = pygame.transform.rotate(self.images[self.index], self.vel * -1)
         else:
             self.image = pygame.transform.rotate(self.images[self.index], -60)
