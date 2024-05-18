@@ -139,14 +139,50 @@ def nickname_input():
 nickname = nickname_input()
 print(f"Nickname: {nickname}")
 
-
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
 
-
-
 flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
+
+def main_menu():
+    meny = True
+    while menu:
+        screen.fill((0,0,0))
+        draw_text("MAIN MENU", pygame.font.Font(my_font, 50), (255, 255, 255), screen, 300, 100)
+        #buttons
+        play_button = pygame.Rect(300,200,200,50)
+        leader_board_button = pygame.Rect(300,300,200,50)
+        exit_button = pygame.Rect(300, 400, 200, 50)
+
+        #visualise buttons
+        pygame.draw.rect(screen, (255, 0, 0), play_button)
+        pygame.draw.rect(screen, (0, 255, 0 ), leader_board_button)
+        pygame.draw.rect(screen,(0, 0, 255), exit_button)
+
+        #Draw button text
+        draw_text("PLAY", font, (255,255,255), screen, play_button.x + 60, play_button.y + 10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
