@@ -22,7 +22,8 @@ pipe_frequency = 1500 #milliseconds
 last_pipe = pygame.time.get_ticks() - pipe_frequency
 
 #Load front
-font = pygame.font.Font(my_font, 17)
+font = pygame.font.Font(my_font, 30)
+large_font = pygame.font.Font(my_font, 40)
 
 
 #font function
@@ -55,7 +56,7 @@ class Bird(pygame.sprite.Sprite):
             self.vel += 0.5
             if self.vel > 8:
                 self.vel = 8
-            if self.rect.bottom < 450:
+            if self.rect.bottom < 750:
                 self.rect.y += int(self.vel)
             if self.rect.top < 0:
                 self.rect.top = 0
@@ -114,6 +115,9 @@ class Pipe(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
+def measure_text_width(text, font):
+    textobj = font.render(text, True, (0, 0, 0))
+    return textobj.get_width()
 
 def nickname_input():
     input_active = True
@@ -131,8 +135,9 @@ def nickname_input():
                 else:
                     nickname += event.unicode
         screen.fill((0, 0, 0))
-        draw_text('Enter your nickname:', font, (255, 255, 255), screen, 50, 200)
-        draw_text(nickname, font, (255, 255, 255),screen, 50, 250)
+        draw_text('Enter your nickname:', font, (255, 255, 255), screen, 150, 350)
+        nickname_width = measure_text_width(nickname, large_font)
+        draw_text(nickname, large_font,  (255, 255, 255),screen, 300 -nickname_width / 2, 400)
         pygame.display.update()
 
     return nickname
@@ -146,7 +151,7 @@ flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
 
 def main_menu():
-    meny = True
+    menu = True
     while menu:
         screen.fill((0,0,0))
         draw_text("MAIN MENU", pygame.font.Font(my_font, 50), (255, 255, 255), screen, 300, 100)
@@ -162,6 +167,24 @@ def main_menu():
 
         #Draw button text
         draw_text("PLAY", font, (255,255,255), screen, play_button.x + 60, play_button.y + 10)
+        draw_text("LEADER BOARD", font, (255, 255, 255), screen, leader_board_button.x + 20, leader_board_button.y + 10)
+        draw_text("EXIT", font, (255, 255, 255), screen, exit_button.x + 70, exit_button.y + 10)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if play_button.collidepoint(event.pos):
+                    menu = False
+                if exit_button.collidepoint(event.pos):
+                    pygame.quit()
+                    quit()
+                if leader_board_button.collidepoint(event.pos):
+                    print("LEADER BOARD")
+        pygame.display.update()
+main_menu()
+
 
 
 
@@ -194,7 +217,7 @@ while run:
 
     #background & base
     screen.blit(bg, (0,0))
-    screen.blit(base, (base_scroll, 450))
+    screen.blit(base, (base_scroll, 750))
 
     if game_over == False and flying == True:
 
@@ -226,14 +249,14 @@ while run:
                 pass_pipe = False
 
     print(score)
-    draw_text(str(score), (pygame.font.Font(my_font, 50)), (255, 255, 255), screen, int(130), 20)
+    draw_text(str(score), (pygame.font.Font(my_font, 70)), (255, 255, 255), screen, int(285), 60)
 
     #collision
     if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0:
         scroll_speed = 0
         game_over = True
     #cheking for game_over
-    if flappy.rect.bottom >= 450:
+    if flappy.rect.bottom >= 750:
         game_over = True
         flying = False
     if abs(base_scroll) > 50:

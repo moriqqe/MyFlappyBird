@@ -5,8 +5,8 @@ gameTitle = "My Flappy Bird"
 
 #ingame variables
 fps = 60
-screen_width = 288
-screen_height = 512
+screen_width = 600
+screen_height = 800
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((screen_width, screen_height))
 score = 0
@@ -24,8 +24,9 @@ my_font = 'flappy-font.ttf'
 
 #ingame sprites
 ground = 'sprites/base.png'
-background = 'sprites/background-day.png'
+background = 'Flappy Bird Assets/Background/Background1.png'
 pipes_sprite = 'sprites/pipe-green.png'
+main_menu_img = 'meme.png'
 
 #icon
 icon = pygame.image.load('icon.ico')
