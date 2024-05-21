@@ -158,46 +158,67 @@ bird_group.add(flappy)
 
 ###super important leaderboard function
 def update_leaderboard(nickname, score):
-    file_exist = os.path.isfile('leaderboard.csv')
-    leadeboard = []
-    found = False
+    try:
+        file_path = os.path.join(os.getcwd(), 'leaderboard.csv')
+        print(f"Path to leaderboard: {file_path}")
+        file_exist = os.path.isfile(file_path)
+        leaderboard = []
+        found = False
 
-    if file_exist:
-        with open('leaderboard.csv', mode='r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if row[0] == nickname:
-                    last_score = int(row[1])
-                    best_score = int(row[2])
-                    if score > best_score:
-                        best_score = score
-                    leadeboard.append([nickname, score, best_score])
-                    found = True
-                else:
-                    leadeboard.append(row)
-    if not found:
-        leadeboard.append([nickname, score, score])
-    with open('leaderboard.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(leadeboard)
+        if file_exist:
+            print("Leaderboard file exists. Reading the file.")
+            with open(file_path, mode='r') as file:
+                reader = csv.reader(file)
+                next(reader)  # Пропускаем заголовок
+                for row in reader:
+                    if row[0] == nickname:
+                        last_score = int(row[1])
+                        best_score = int(row[2])
+                        if score > best_score:
+                            best_score = score
+                        leaderboard.append([nickname, score, best_score])
+                        found = True
+                    else:
+                        leaderboard.append(row)
+        else:
+            print("Leaderboard file does not exist. It will be created.")
+
+        if not found:
+            leaderboard.append([nickname, score, score])
+
+        with open(file_path, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            if not file_exist:
+                print("Writing header to the new leaderboard file.")
+                writer.writerow(['Nickname', 'Last Score', 'Best Score'])
+            writer.writerows(leaderboard)
+            print("Leaderboard updated.")
+    except Exception as e:
+        print(f"Error updating leaderboard: {e}")
+
 def display_leaderboard():
-    if not os.path.isfile('leaderboard.csv'):
-        print("No leaderboard data found")
-        return
+    try:
+        file_path = os.path.join(os.getcwd(), 'leaderboard.csv')
+        print(f"Path to leaderboard: {file_path}")
+        if not os.path.isfile(file_path):
+            print("No leaderboard data found")
+            return
 
-    screen.fill((0, 0, 0))
-    draw_text('LEADER BOARD', large_font, (255, 255, 255), screen, 150,50)
+        screen.fill((0, 0, 0))
+        draw_text('LEADER BOARD', large_font, (255, 255, 255), screen, 150, 50)
 
-    with open('leaderboard.csv', mode='r') as file:
-        reader = csv.reader(file)
-        y_offset = 150
-        for row in reader:
-            draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 100, y_offset)
-            y_offset += 40
+        with open(file_path, mode='r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Пропускаем заголовок
+            y_offset = 150
+            for row in reader:
+                draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 100, y_offset)
+                y_offset += 40
 
-    pygame.display.update()
-    pygame.time.wait(5000)
-
+        pygame.display.update()
+        pygame.time.wait(5000)
+    except Exception as e:
+        print(f"Error displaying leaderboard: {e}")
 #making gradient
 def draw_gradient_rect(screen, rect, color_start, color_end):
     """Draw a vertical gradient rectangle."""
