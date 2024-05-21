@@ -154,7 +154,7 @@ def main_menu():
     menu = True
     while menu:
         screen.fill((0,0,0))
-        draw_text("MAIN MENU", pygame.font.Font(my_font, 50), (255, 255, 255), screen, 300, 100)
+        draw_text("MAIN MENU", pygame.font.Font(my_font, 65), (255, 255, 255), screen, 130, 100)
         #buttons
         play_button = pygame.Rect(300,200,200,50)
         leader_board_button = pygame.Rect(300,300,200,50)
@@ -166,9 +166,9 @@ def main_menu():
         pygame.draw.rect(screen,(0, 0, 255), exit_button)
 
         #Draw button text
-        draw_text("PLAY", font, (255,255,255), screen, play_button.x + 60, play_button.y + 10)
-        draw_text("LEADER BOARD", font, (255, 255, 255), screen, leader_board_button.x + 20, leader_board_button.y + 10)
-        draw_text("EXIT", font, (255, 255, 255), screen, exit_button.x + 70, exit_button.y + 10)
+        draw_text("PLAY", font, (255,255,255), screen, play_button.x -40, play_button.y + 10)
+        draw_text("LEADER BOARD", font, (255, 255, 255), screen, leader_board_button.x + -110, leader_board_button.y + 10)
+        draw_text("EXIT", font, (255, 255, 255), screen, exit_button.x + -35, exit_button.y + 10)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -259,7 +259,7 @@ while run:
     if flappy.rect.bottom >= 750:
         game_over = True
         flying = False
-    if abs(base_scroll) > 50:
+    if abs(base_scroll) > 300:
         base_scroll = 0
 
     #draw nickname

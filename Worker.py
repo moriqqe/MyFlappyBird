@@ -23,9 +23,9 @@ pass_pipe = False
 my_font = 'flappy-font.ttf'
 
 #ingame sprites
-ground = 'sprites/base.png'
+ground = 'Flappy Bird Assets/Tiles/Style 1/newground.png'
 background = 'Flappy Bird Assets/Background/Background1.png'
-pipes_sprite = 'sprites/pipe-green.png'
+pipes_sprite = 'Flappy Bird Assets/Tiles/Style 1/red_pipe.png'
 main_menu_img = 'meme.png'
 
 #icon
