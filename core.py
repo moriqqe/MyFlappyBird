@@ -1,4 +1,7 @@
 import pygame
+import csv
+from csv import *
+import os
 import random
 import Worker
 import Groups
@@ -15,6 +18,8 @@ pygame.display.set_icon(icon)
 
 bg = pygame.image.load(background)
 base = pygame.image.load(ground)
+base_width = base.get_width()
+base_positions = [0, base_width]
 #game variables
 
 pipe_gap = 150
@@ -150,25 +155,89 @@ pipe_group = pygame.sprite.Group()
 flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
 
+
+'''super important leaderboard function'''
+def update_leaderboard(nickname, score):
+    file_exist = os.path.isfile('leaderboard.csv')
+    leadeboard = []
+    found = False
+
+    if file_exist:
+        with open('leaderboard.csv', mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == nickname:
+                    last_score = int(row[1])
+                    best_score = int(row[2])
+                    if score > best_score:
+                        best_score = score
+                    leadeboard.append([nickname, score, best_score])
+                    found = True
+                else:
+                    leadeboard.append(row)
+    if not found:
+        leadeboard.append([nickname, score, score])
+    with open('leaderboard.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(leadeboard)
+def display_leaderboard():
+    if not os.path.isfile('leaderboard.csv'):
+        print("No leaderboard data found")
+        return
+
+    screen.fill((0, 0, 0))
+    draw_text('LEADER BOARD', large_font, (255, 255, 255), screen, 150,50)
+
+    with open('leaderboard.csv', mode='r') as file:
+        reader = csv.reader(file)
+        y_offset = 150
+        for row in reader:
+            draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 100, y_offset)
+            y_offset += 40
+
+    pygame.display.update()
+    pygame.time.wait(5000)
+
+#making gradient
+def draw_gradient_rect(screen, rect, color_start, color_end):
+    """Draw a vertical gradient rectangle."""
+    x, y, w, h = rect
+    for i in range(h):
+        # Calculate the color for each row
+        r = color_start[0] + (color_end[0] - color_start[0]) * i // h
+        g = color_start[1] + (color_end[1] - color_start[1]) * i // h
+        b = color_start[2] + (color_end[2] - color_start[2]) * i // h
+        pygame.draw.line(screen, (r, g, b), (x, y + i), (x + w, y + i))
 def main_menu():
     menu = True
     while menu:
-        screen.fill((0,0,0))
+        screen.blit(main_menu_img, (0, 0))
         draw_text("MAIN MENU", pygame.font.Font(my_font, 65), (255, 255, 255), screen, 130, 100)
-        #buttons
-        play_button = pygame.Rect(300,200,200,50)
-        leader_board_button = pygame.Rect(300,300,200,50)
-        exit_button = pygame.Rect(300, 400, 200, 50)
 
-        #visualise buttons
-        pygame.draw.rect(screen, (255, 0, 0), play_button)
-        pygame.draw.rect(screen, (0, 255, 0 ), leader_board_button)
-        pygame.draw.rect(screen,(0, 0, 255), exit_button)
+        # Buttons
+        button_width = 250
+        button_height = 50
+        screen_width = 600
+        button_x = (screen_width - button_width) // 2
 
-        #Draw button text
-        draw_text("PLAY", font, (255,255,255), screen, play_button.x -40, play_button.y + 10)
-        draw_text("LEADER BOARD", font, (255, 255, 255), screen, leader_board_button.x + -110, leader_board_button.y + 10)
-        draw_text("EXIT", font, (255, 255, 255), screen, exit_button.x + -35, exit_button.y + 10)
+        play_button = pygame.Rect(button_x, 200, button_width, button_height)
+        skin_button = pygame.Rect(button_x, 300, button_width, button_height)
+        leader_board_button = pygame.Rect(button_x, 400, button_width, button_height)
+        exit_button = pygame.Rect(button_x, 500, button_width, button_height)
+
+        # Visualize buttons
+        pygame.draw.rect(screen, (57, 196, 74), play_button)
+        draw_gradient_rect(screen, skin_button, color_start, color_end)
+        pygame.draw.rect(screen, (224, 153, 45), leader_board_button)
+        pygame.draw.rect(screen, (255, 25, 0), exit_button)
+
+        # Draw button text
+        font = pygame.font.Font(my_font, 30)
+
+        draw_text("PLAY", font, (255, 255, 255), screen, play_button.x + 95, play_button.y + 10)
+        draw_text("SKINS", font, (255, 255, 255), screen, skin_button.x + 85, skin_button.y + 10)
+        draw_text("LEADER BOARD", font, (255, 255, 255), screen, leader_board_button.x + 27, leader_board_button.y + 10)
+        draw_text("EXIT", font, (255, 255, 255), screen, exit_button.x + 95, exit_button.y + 10)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -181,33 +250,11 @@ def main_menu():
                     pygame.quit()
                     quit()
                 if leader_board_button.collidepoint(event.pos):
-                    print("LEADER BOARD")
+                    display_leaderboard()
+                if skin_button.collidepoint(event.pos):
+                    print("SKINS ARE COMING SOON")
         pygame.display.update()
 main_menu()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 top_border = 0
 run = True
@@ -248,7 +295,8 @@ while run:
                 score += 1
                 pass_pipe = False
 
-    print(score)
+    #print(score)
+    #print(base_width)
     draw_text(str(score), (pygame.font.Font(my_font, 70)), (255, 255, 255), screen, int(285), 60)
 
     #collision
@@ -259,8 +307,17 @@ while run:
     if flappy.rect.bottom >= 750:
         game_over = True
         flying = False
-    if abs(base_scroll) > 300:
-        base_scroll = 0
+    for i in range(len(base_positions)):
+        base_positions[i] -= scroll_speed
+
+    # Draw base images
+    for pos in base_positions:
+        screen.blit(base, (pos, 750))
+
+    # Add new base image if the first one is out of screen
+    if base_positions[0] <= -base_width:
+        base_positions.append(base_positions[-1] + base_width)
+        base_positions.pop(0)
 
     #draw nickname
     draw_text(nickname, (font), (255, 255, 255), screen, 10, 10)
