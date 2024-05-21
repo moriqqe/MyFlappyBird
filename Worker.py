@@ -33,4 +33,4 @@ pipes_sprite = 'Flappy Bird Assets/Tiles/Style 1/red_pipe.png'
 main_menu_img = pygame.image.load('Flappy Bird Assets/mainback.png')
 
 #icon
-icon = pygame.image.load('icon.ico')
+icon = pygame.image.load('Icon.jpg')

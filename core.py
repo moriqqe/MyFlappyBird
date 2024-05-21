@@ -156,7 +156,7 @@ flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
 
 
-'''super important leaderboard function'''
+###super important leaderboard function
 def update_leaderboard(nickname, score):
     file_exist = os.path.isfile('leaderboard.csv')
     leadeboard = []
@@ -210,11 +210,12 @@ def draw_gradient_rect(screen, rect, color_start, color_end):
         pygame.draw.line(screen, (r, g, b), (x, y + i), (x + w, y + i))
 def main_menu():
     menu = True
+    button_down = None
     while menu:
         screen.blit(main_menu_img, (0, 0))
         draw_text("MAIN MENU", pygame.font.Font(my_font, 65), (255, 255, 255), screen, 130, 100)
 
-        # Buttons
+        # buttons
         button_width = 250
         button_height = 50
         screen_width = 600
@@ -225,13 +226,28 @@ def main_menu():
         leader_board_button = pygame.Rect(button_x, 400, button_width, button_height)
         exit_button = pygame.Rect(button_x, 500, button_width, button_height)
 
-        # Visualize buttons
-        pygame.draw.rect(screen, (57, 196, 74), play_button)
-        draw_gradient_rect(screen, skin_button, color_start, color_end)
-        pygame.draw.rect(screen, (224, 153, 45), leader_board_button)
-        pygame.draw.rect(screen, (255, 25, 0), exit_button)
+        # buttons view
+        if button_down == play_button:
+            pygame.draw.rect(screen, (37, 176, 54), play_button)
+        else:
+            pygame.draw.rect(screen, (57, 196, 74), play_button)
 
-        # Draw button text
+        if button_down == skin_button:
+            draw_gradient_rect(screen, skin_button, (0, 0, 200), (0, 200, 0))
+        else:
+            draw_gradient_rect(screen, skin_button, color_start, color_end)
+
+        if button_down == leader_board_button:
+            pygame.draw.rect(screen, (204, 133, 25), leader_board_button)
+        else:
+            pygame.draw.rect(screen, (224, 153, 45), leader_board_button)
+
+        if button_down == exit_button:
+            pygame.draw.rect(screen, (235, 5, 0), exit_button)
+        else:
+            pygame.draw.rect(screen, (255, 25, 0), exit_button)
+
+        # draw font
         font = pygame.font.Font(my_font, 30)
 
         draw_text("PLAY", font, (255, 255, 255), screen, play_button.x + 95, play_button.y + 10)
@@ -245,15 +261,28 @@ def main_menu():
                 quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_button.collidepoint(event.pos):
-                    menu = False
+                    button_down = play_button
                 if exit_button.collidepoint(event.pos):
+                    button_down = exit_button
+                if leader_board_button.collidepoint(event.pos):
+                    button_down = leader_board_button
+                if skin_button.collidepoint(event.pos):
+                    button_down = skin_button
+            if event.type == pygame.MOUSEBUTTONUP:
+                if button_down == play_button and play_button.collidepoint(event.pos):
+                    menu = False
+                if button_down == exit_button and exit_button.collidepoint(event.pos):
                     pygame.quit()
                     quit()
-                if leader_board_button.collidepoint(event.pos):
+                if button_down == leader_board_button and leader_board_button.collidepoint(event.pos):
                     display_leaderboard()
-                if skin_button.collidepoint(event.pos):
+                if button_down == skin_button and skin_button.collidepoint(event.pos):
                     print("SKINS ARE COMING SOON")
+                button_down = None
+
         pygame.display.update()
+
+#main menu startup
 main_menu()
 
 top_border = 0
