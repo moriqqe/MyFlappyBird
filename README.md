@@ -1,3 +1,7 @@
+MU Group Project
+Arsenii Linkin
+Narmin Suleymanova
+
 
 "｡＾･ｪ･＾｡",
   "( ͒ ु- •̫̮ – ू ͒)",
