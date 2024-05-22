@@ -21,7 +21,7 @@ base = pygame.image.load(ground)
 base_width = base.get_width()
 base_positions = [0, base_width]
 #game variables
-
+score = 0
 pipe_gap = 150
 pipe_frequency = 1500 #milliseconds
 last_pipe = pygame.time.get_ticks() - pipe_frequency
@@ -167,12 +167,11 @@ def update_leaderboard(nickname, score):
 
         if file_exist:
             print("Leaderboard file exists. Reading the file.")
-            with open(file_path, mode='r') as file:
+            with open(file_path, mode='r',newline='') as file:
                 reader = csv.reader(file)
-                next(reader)  # Пропускаем заголовок
+                next(reader)
                 for row in reader:
                     if row[0] == nickname:
-                        last_score = int(row[1])
                         best_score = int(row[2])
                         if score > best_score:
                             best_score = score
@@ -317,7 +316,6 @@ def restart_game():
     button_x = (screen_width - button_width) // 2
     button_y = (screen_height - button_height) // 2
     restart_game_button = pygame.Rect(button_x, button_y, button_width, button_height)
-
     alpha = 0  # Initial alpha value
     max_alpha = 128  # Maximum alpha value
     alpha_step = 2  # Step by which alpha increases
@@ -359,13 +357,16 @@ def restart_game():
 def reset_game():
     bird_group.empty()
     pipe_group.empty()
-    flappy.rect.center = [100, int(screen_height/ 2)]
-    flappy.vel = 0
-    global scroll_speed, score, game_over, flying
+    flappy = Bird(100, int(screen_height/ 2))
+    bird_group.add(flappy)
+    flappy.vel = 8
+    global scroll_speed, score, game_over, flying, pass_pipe, last_pipe
     scroll_speed = 4
     score = 0
     game_over = False
     flying = False
+    pass_pipe = False
+    last_pipe = pygame.time.get_ticks() - pipe_frequency
     main_menu()
 
 top_border = 0
@@ -426,8 +427,11 @@ while run:
     for pos in base_positions:
         screen.blit(base, (pos, 750))
     if game_over == True:
+        # update leaderboard when game is over
+        update_leaderboard(nickname, score)
         if restart_game():
            reset_game()
+
 
 
 
@@ -437,13 +441,15 @@ while run:
         base_positions.pop(0)
 
     #draw nickname
-    draw_text(nickname, (font), (255, 255, 255), screen, 10, 10)
+    draw_text(f"player: {nickname}", (font), (255, 255, 255), screen, 10, 10)
 
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == MOUSEBUTTONDOWN and flying == False and game_over == False:
+        if event.type == MOUSEBUTTONDOWN  and flying == False and game_over == False:
+            flying = True
+        if event.type == KEYDOWN and event.key == pygame.K_SPACE and not flying and not game_over:
             flying = True
     pygame.display.update()
 
