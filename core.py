@@ -239,13 +239,13 @@ def main_menu():
         # buttons
         button_width = 250
         button_height = 50
-        screen_width = 600
         button_x = (screen_width - button_width) // 2
 
         play_button = pygame.Rect(button_x, 200, button_width, button_height)
         skin_button = pygame.Rect(button_x, 300, button_width, button_height)
         leader_board_button = pygame.Rect(button_x, 400, button_width, button_height)
         exit_button = pygame.Rect(button_x, 500, button_width, button_height)
+        
 
         # buttons view
         if button_down == play_button:
@@ -302,9 +302,71 @@ def main_menu():
                 button_down = None
 
         pygame.display.update()
-
 #main menu startup
 main_menu()
+
+# Create a transparent overlay surface
+overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+overlay.fill((0, 0, 0, 128))
+
+def restart_game():
+    restart = True
+    button_down = None
+    button_width = 200
+    button_height = 70
+    button_x = (screen_width - button_width) // 2
+    button_y = (screen_height - button_height) // 2
+    restart_game_button = pygame.Rect(button_x, button_y, button_width, button_height)
+
+    alpha = 0  # Initial alpha value
+    max_alpha = 128  # Maximum alpha value
+    alpha_step = 2  # Step by which alpha increases
+    overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+
+
+    while restart:
+        if alpha < max_alpha:
+            alpha += alpha_step
+        overlay.fill((0, 0, 0, alpha))  # (0, 0, 0) is the color black, and alpha is the current alpha value
+        screen.blit(overlay, (0, 0))  # Draw the transparent overlay
+        draw_text("Game Over", large_font, (255, 255, 255), screen, button_x, 100)
+        
+        if button_down == restart_game_button:
+            pygame.draw.rect(screen, (37, 176, 54), restart_game_button)
+        else:
+            pygame.draw.rect(screen, (57, 196, 74), restart_game_button)
+
+        draw_text("RESTART", font, (255, 255, 255), screen, restart_game_button.x + 40, restart_game_button.y + 20)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if restart_game_button.collidepoint(event.pos):
+                    button_down = restart_game_button
+            if event.type == pygame.MOUSEBUTTONUP:
+                if button_down == restart_game_button and restart_game_button.collidepoint(event.pos):
+                    restart = False
+                    return True
+                button_down = None
+
+        pygame.display.update()
+        pygame.time.wait(100)
+
+    return False
+
+def reset_game():
+    bird_group.empty()
+    pipe_group.empty()
+    flappy.rect.center = [100, int(screen_height/ 2)]
+    flappy.vel = 0
+    global scroll_speed, score, game_over, flying
+    scroll_speed = 4
+    score = 0
+    game_over = False
+    flying = False
+    main_menu()
 
 top_border = 0
 run = True
@@ -363,6 +425,11 @@ while run:
     # Draw base images
     for pos in base_positions:
         screen.blit(base, (pos, 750))
+    if game_over == True:
+        if restart_game():
+           reset_game()
+
+
 
     # Add new base image if the first one is out of screen
     if base_positions[0] <= -base_width:
@@ -379,6 +446,8 @@ while run:
         if event.type == MOUSEBUTTONDOWN and flying == False and game_over == False:
             flying = True
     pygame.display.update()
+
+    
 
 pygame.quit()
 
