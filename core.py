@@ -160,14 +160,12 @@ bird_group.add(flappy)
 def update_leaderboard(nickname, score):
     try:
         file_path = os.path.join(os.getcwd(), 'leaderboard.csv')
-        print(f"Path to leaderboard: {file_path}")
         file_exist = os.path.isfile(file_path)
         leaderboard = []
         found = False
 
         if file_exist:
-            print("Leaderboard file exists. Reading the file.")
-            with open(file_path, mode='r',newline='') as file:
+            with open(file_path, mode='r', newline='') as file:
                 reader = csv.reader(file)
                 next(reader)
                 for row in reader:
@@ -187,9 +185,7 @@ def update_leaderboard(nickname, score):
 
         with open(file_path, mode='w', newline='') as file:
             writer = csv.writer(file)
-            if not file_exist:
-                print("Writing header to the new leaderboard file.")
-                writer.writerow(['Nickname', 'Last Score', 'Best Score'])
+            writer.writerow(['Nickname', 'Last Score', 'Best Score'])
             writer.writerows(leaderboard)
             print("Leaderboard updated.")
     except Exception as e:
@@ -198,7 +194,6 @@ def update_leaderboard(nickname, score):
 def display_leaderboard():
     try:
         file_path = os.path.join(os.getcwd(), 'leaderboard.csv')
-        print(f"Path to leaderboard: {file_path}")
         if not os.path.isfile(file_path):
             print("No leaderboard data found")
             return
@@ -208,16 +203,19 @@ def display_leaderboard():
 
         with open(file_path, mode='r') as file:
             reader = csv.reader(file)
-            next(reader)  # Пропускаем заголовок
+            header = next(reader)
+            print(f"Header: {header}")
             y_offset = 150
             for row in reader:
-                draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 100, y_offset)
+                print(f"Row: {row}")
+                draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 50, y_offset)
                 y_offset += 40
 
         pygame.display.update()
         pygame.time.wait(5000)
     except Exception as e:
         print(f"Error displaying leaderboard: {e}")
+
 #making gradient
 def draw_gradient_rect(screen, rect, color_start, color_end):
     """Draw a vertical gradient rectangle."""
@@ -308,6 +306,7 @@ main_menu()
 overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
 overlay.fill((0, 0, 0, 128))
 
+
 def restart_game():
     restart = True
     button_down = None
@@ -316,19 +315,11 @@ def restart_game():
     button_x = (screen_width - button_width) // 2
     button_y = (screen_height - button_height) // 2
     restart_game_button = pygame.Rect(button_x, button_y, button_width, button_height)
-    alpha = 0  # Initial alpha value
-    max_alpha = 128  # Maximum alpha value
-    alpha_step = 2  # Step by which alpha increases
-    overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
-
 
     while restart:
-        if alpha < max_alpha:
-            alpha += alpha_step
-        overlay.fill((0, 0, 0, alpha))  # (0, 0, 0) is the color black, and alpha is the current alpha value
-        screen.blit(overlay, (0, 0))  # Draw the transparent overlay
+        screen.blit(bg, (0, 0))
         draw_text("Game Over", large_font, (255, 255, 255), screen, button_x, 100)
-        
+
         if button_down == restart_game_button:
             pygame.draw.rect(screen, (37, 176, 54), restart_game_button)
         else:
@@ -355,12 +346,11 @@ def restart_game():
     return False
 
 def reset_game():
+    global flappy, scroll_speed, score, game_over, flying, pass_pipe, last_pipe
     bird_group.empty()
     pipe_group.empty()
-    flappy = Bird(100, int(screen_height/ 2))
+    flappy = Bird(100, int(screen_height / 2))
     bird_group.add(flappy)
-    flappy.vel = 8
-    global scroll_speed, score, game_over, flying, pass_pipe, last_pipe
     scroll_speed = 4
     score = 0
     game_over = False
@@ -368,6 +358,8 @@ def reset_game():
     pass_pipe = False
     last_pipe = pygame.time.get_ticks() - pipe_frequency
     main_menu()
+
+
 
 top_border = 0
 run = True
@@ -413,24 +405,20 @@ while run:
     draw_text(str(score), (pygame.font.Font(my_font, 70)), (255, 255, 255), screen, int(285), 60)
 
     #collision
-    if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0:
+    if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.bottom >= 750:
         scroll_speed = 0
         game_over = True
-    #cheking for game_over
-    if flappy.rect.bottom >= 750:
-        game_over = True
-        flying = False
+        update_leaderboard(nickname, score)
+        if restart_game():
+            reset_game()
+
     for i in range(len(base_positions)):
         base_positions[i] -= scroll_speed
 
     # Draw base images
     for pos in base_positions:
         screen.blit(base, (pos, 750))
-    if game_over == True:
-        # update leaderboard when game is over
-        update_leaderboard(nickname, score)
-        if restart_game():
-           reset_game()
+
 
 
 
