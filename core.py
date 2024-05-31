@@ -10,7 +10,8 @@ from Worker import *
 from pygame import *
 from pygame.sprite import Group
 from pygame.locals import *
-#pygame initialize
+
+# pygame initialize
 pygame.init()
 
 pygame.display.set_caption(gameTitle)
@@ -20,28 +21,28 @@ bg = pygame.image.load(background)
 base = pygame.image.load(ground)
 base_width = base.get_width()
 base_positions = [0, base_width]
-#game variables
+# game variables
 score = 0
 pipe_gap = 150
-pipe_frequency = 1500 #milliseconds
+pipe_frequency = 1500  # milliseconds
 last_pipe = pygame.time.get_ticks() - pipe_frequency
 
-#Load front
+# Load front
 font = pygame.font.Font(my_font, 30)
 large_font = pygame.font.Font(my_font, 40)
+small_font = pygame.font.Font(my_font, 15)
 
 
-#font function
-def draw_text(text,font, color, surface, x,y):
+# font function
+def draw_text(text, font, color, surface, x, y):
     textobj = font.render(text, True, color)
     textrect = textobj.get_rect()
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
 
 
-
 class Bird(pygame.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         self.index = 0
@@ -54,9 +55,10 @@ class Bird(pygame.sprite.Sprite):
         self.rect.center = [x, y]
         self.vel = 0
         self.clicked = False
-    def update(self): #physics
 
-        #gravity
+    def update(self):  # physics
+
+        # gravity
         if flying == True:
             self.vel += 0.5
             if self.vel > 8:
@@ -67,7 +69,7 @@ class Bird(pygame.sprite.Sprite):
                 self.rect.top = 0
                 self.vel = 0
 
-        #jump physics
+        # jump physics
         if game_over == False:
             keys = pygame.key.get_pressed()
 
@@ -84,7 +86,7 @@ class Bird(pygame.sprite.Sprite):
 
             if self.rect.bottom <= 0:
                 self.rect.y += int(self.vel)
-            #animations
+            # animations
             self.counter += 1
             flap_cooldown = 5
 
@@ -96,37 +98,43 @@ class Bird(pygame.sprite.Sprite):
 
             self.image = self.images[self.index]
 
-            #rotate the bird
+            # rotate the bird
             self.image = pygame.transform.rotate(self.images[self.index], self.vel * -1)
         else:
             self.image = pygame.transform.rotate(self.images[self.index], -60)
 
 
-#pipes
+# pipes
 class Pipe(pygame.sprite.Sprite):
-    def __init__(self, x,y, position):
+    def __init__(self, x, y, position):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(pipes_sprite)
         self.rect = self.image.get_rect()
-        #position 1 is from the top, -1 is from the bottom
+        # position 1 is from the top, -1 is from the bottom
         if position == 1:
             self.image = pygame.transform.flip(self.image, False, True)
             self.rect.bottomleft = [x, y - int(pipe_gap / 2)]
         if position == -1:
-            self.rect.topleft = [x,y +int(pipe_gap / 2)]
+            self.rect.topleft = [x, y + int(pipe_gap / 2)]
 
     def update(self):
         self.rect.x -= scroll_speed
         if self.rect.right < 0:
             self.kill()
 
+
 def measure_text_width(text, font):
     textobj = font.render(text, True, (0, 0, 0))
     return textobj.get_width()
 
-def nickname_input():
+
+def player_input():
     input_active = True
     nickname = ""
+    difficulty = ""
+    valid_difficulties = ['easy', 'medium', 'hard']
+    stage = "nickname"
+
     while input_active:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -134,20 +142,58 @@ def nickname_input():
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    input_active = False
+                    if stage == "nickname" and nickname:
+                        stage = "difficulty"
+                    elif stage == "difficulty" and difficulty in valid_difficulties:
+                        input_active = False
                 elif event.key == pygame.K_BACKSPACE:
-                    nickname = nickname[:-1]
+                    if stage == "difficulty":
+                        difficulty = difficulty[:-1]
+                    elif stage == "nickname":
+                        nickname = nickname[:-1]
                 else:
-                    nickname += event.unicode
+                    if stage == "nickname" and len(nickname) < 10:
+                        nickname += event.unicode
+                    elif stage == "difficulty" and len(difficulty) < 6:
+                        difficulty += event.unicode
         screen.fill((0, 0, 0))
         draw_text('Enter your nickname:', font, (255, 255, 255), screen, 150, 350)
         nickname_width = measure_text_width(nickname, large_font)
-        draw_text(nickname, large_font,  (255, 255, 255),screen, 300 -nickname_width / 2, 400)
+        draw_text(nickname, large_font, (255, 255, 255), screen, 300 - nickname_width / 2, 400)
+        if nickname:
+            draw_text('Enter difficulty (easy, medium, hard):', small_font, (255, 255, 255), screen, 150, 450)
+            difficulty_width = measure_text_width(difficulty, small_font)
+            draw_text(difficulty, small_font, (255, 255, 255), screen, 300 - difficulty_width / 2, 500)
+
         pygame.display.update()
 
-    return nickname
-nickname = nickname_input()
-print(f"Nickname: {nickname}")
+    return nickname, difficulty
+
+
+nickname, difficulty = player_input()
+print(f"Nickname: {nickname}", f"Difficulty: {difficulty}")
+
+
+def set_difficulty_params(difficulty):
+    global scroll_speed, pipe_frequency, pipe_gap
+
+    if difficulty == "easy":
+        scroll_speed = 3
+        pipe_frequency = 2000
+        pipe_gap = 200
+    elif difficulty == "medium":
+        scroll_speed = 4
+        pipe_frequency = 1500
+        pipe_gap = 150
+    elif difficulty == "hard":
+        scroll_speed = 5
+        pipe_frequency = 1000
+        pipe_gap = 100
+    else:
+        "medium"
+
+
+set_difficulty_params(difficulty)
 
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
@@ -191,6 +237,7 @@ def update_leaderboard(nickname, score):
     except Exception as e:
         print(f"Error updating leaderboard: {e}")
 
+
 def display_leaderboard():
     try:
         file_path = os.path.join(os.getcwd(), 'leaderboard.csv')
@@ -208,7 +255,8 @@ def display_leaderboard():
             y_offset = 150
             for row in reader:
                 print(f"Row: {row}")
-                draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 50, y_offset)
+                draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 50,
+                          y_offset)
                 y_offset += 40
 
         pygame.display.update()
@@ -216,7 +264,8 @@ def display_leaderboard():
     except Exception as e:
         print(f"Error displaying leaderboard: {e}")
 
-#making gradient
+
+# making gradient
 def draw_gradient_rect(screen, rect, color_start, color_end):
     """Draw a vertical gradient rectangle."""
     x, y, w, h = rect
@@ -226,6 +275,8 @@ def draw_gradient_rect(screen, rect, color_start, color_end):
         g = color_start[1] + (color_end[1] - color_start[1]) * i // h
         b = color_start[2] + (color_end[2] - color_start[2]) * i // h
         pygame.draw.line(screen, (r, g, b), (x, y + i), (x + w, y + i))
+
+
 def main_menu():
     menu = True
     button_down = None
@@ -242,7 +293,6 @@ def main_menu():
         skin_button = pygame.Rect(button_x, 300, button_width, button_height)
         leader_board_button = pygame.Rect(button_x, 400, button_width, button_height)
         exit_button = pygame.Rect(button_x, 500, button_width, button_height)
-        
 
         # buttons view
         if button_down == play_button:
@@ -299,7 +349,9 @@ def main_menu():
                 button_down = None
 
         pygame.display.update()
-#main menu startup
+
+
+# main menu startup
 main_menu()
 
 # Create a transparent overlay surface
@@ -345,6 +397,7 @@ def restart_game():
 
     return False
 
+
 def reset_game():
     global flappy, scroll_speed, score, game_over, flying, pass_pipe, last_pipe
     bird_group.empty()
@@ -357,8 +410,8 @@ def reset_game():
     flying = False
     pass_pipe = False
     last_pipe = pygame.time.get_ticks() - pipe_frequency
+    set_difficulty_params(difficulty)
     main_menu()
-
 
 
 top_border = 0
@@ -367,13 +420,13 @@ while run:
 
     clock.tick(fps)
 
-    #background & base
-    screen.blit(bg, (0,0))
+    # background & base
+    screen.blit(bg, (0, 0))
     screen.blit(base, (base_scroll, 750))
 
     if game_over == False and flying == True:
 
-        #generating new pipes
+        # generating new pipes
         time_now = pygame.time.get_ticks()
         if time_now - last_pipe > pipe_frequency:
             pipe_height = random.randint(-100, 100)
@@ -400,11 +453,11 @@ while run:
                 score += 1
                 pass_pipe = False
 
-    #print(score)
-    #print(base_width)
+    # print(score)
+    # print(base_width)
     draw_text(str(score), (pygame.font.Font(my_font, 70)), (255, 255, 255), screen, int(285), 60)
 
-    #collision
+    # collision
     if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.bottom >= 750:
         scroll_speed = 0
         game_over = True
@@ -419,29 +472,22 @@ while run:
     for pos in base_positions:
         screen.blit(base, (pos, 750))
 
-
-
-
-
     # Add new base image if the first one is out of screen
     if base_positions[0] <= -base_width:
         base_positions.append(base_positions[-1] + base_width)
         base_positions.pop(0)
 
-    #draw nickname
+    # draw nickname
     draw_text(f"player: {nickname}", (font), (255, 255, 255), screen, 10, 10)
-
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == MOUSEBUTTONDOWN  and flying == False and game_over == False:
+        if event.type == MOUSEBUTTONDOWN and flying == False and game_over == False:
             flying = True
         if event.type == KEYDOWN and event.key == pygame.K_SPACE and not flying and not game_over:
             flying = True
     pygame.display.update()
-
-    
 
 pygame.quit()
 
