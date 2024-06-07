@@ -2,6 +2,7 @@ import pygame
 import csv
 from csv import *
 import os
+import sys
 import random
 import Worker
 import Groups
@@ -10,6 +11,9 @@ from Worker import *
 from pygame import *
 from pygame.sprite import Group
 from pygame.locals import *
+
+
+
 
 # pygame initialize
 pygame.init()
@@ -41,20 +45,7 @@ def draw_text(text, font, color, surface, x, y):
     surface.blit(textobj, textrect)
 
 
-class Bird(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.images = []
-        self.index = 0
-        self.counter = 0
-        for num in range(0, 3):
-            img = pygame.image.load(f'sprites/bluebird{num}.png')
-            self.images.append(img)
-        self.image = self.images[self.index]
-        self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
-        self.vel = 0
-        self.clicked = False
+
 
     def update(self):  # physics
 
@@ -104,18 +95,6 @@ class Bird(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(self.images[self.index], -60)
 
 
-# pipes
-class Pipe(pygame.sprite.Sprite):
-    def __init__(self, x, y, position):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(pipes_sprite)
-        self.rect = self.image.get_rect()
-        # position 1 is from the top, -1 is from the bottom
-        if position == 1:
-            self.image = pygame.transform.flip(self.image, False, True)
-            self.rect.bottomleft = [x, y - int(pipe_gap / 2)]
-        if position == -1:
-            self.rect.topleft = [x, y + int(pipe_gap / 2)]
 
     def update(self):
         self.rect.x -= scroll_speed
