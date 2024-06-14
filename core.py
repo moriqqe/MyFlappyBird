@@ -32,12 +32,14 @@ font = pygame.font.Font(my_font, 30)
 large_font = pygame.font.Font(my_font, 40)
 small_font = pygame.font.Font(my_font, 15)
 
+
 # font function
 def draw_text(text, font, color, surface, x, y):
     textobj = font.render(text, True, color)
     textrect = textobj.get_rect()
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
+
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -55,8 +57,9 @@ class Bird(pygame.sprite.Sprite):
         self.clicked = False
 
     def update(self):  # physics
+
         # gravity
-        if flying:
+        if flying == True:
             self.vel += 0.5
             if self.vel > 8:
                 self.vel = 8
@@ -67,31 +70,39 @@ class Bird(pygame.sprite.Sprite):
                 self.vel = 0
 
         # jump physics
-        if not game_over:
+        if game_over == False:
             keys = pygame.key.get_pressed()
-            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
+
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
                 self.clicked = True
                 self.vel = -10
+
             if keys[pygame.K_SPACE] and not self.clicked:
                 self.clicked = True
                 self.vel = -10
+
             if not any(pygame.mouse.get_pressed()) and not keys[pygame.K_SPACE]:
                 self.clicked = False
+
             if self.rect.bottom <= 0:
                 self.rect.y += int(self.vel)
             # animations
             self.counter += 1
             flap_cooldown = 5
+
             if self.counter > flap_cooldown:
                 self.counter = 0
                 self.index += 1
                 if self.index >= len(self.images):
                     self.index = 0
+
             self.image = self.images[self.index]
+
             # rotate the bird
             self.image = pygame.transform.rotate(self.images[self.index], self.vel * -1)
         else:
             self.image = pygame.transform.rotate(self.images[self.index], -60)
+
 
 # pipes
 class Pipe(pygame.sprite.Sprite):
@@ -111,9 +122,11 @@ class Pipe(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
+
 def measure_text_width(text, font):
     textobj = font.render(text, True, (0, 0, 0))
     return textobj.get_width()
+
 
 def player_input():
     input_active = True
@@ -156,11 +169,14 @@ def player_input():
 
     return nickname, difficulty
 
+
 nickname, difficulty = player_input()
 print(f"Nickname: {nickname}", f"Difficulty: {difficulty}")
 
+
 def set_difficulty_params(difficulty):
     global scroll_speed, pipe_frequency, pipe_gap
+
     if difficulty == "easy":
         scroll_speed = 3
         pipe_frequency = 2000
@@ -176,6 +192,7 @@ def set_difficulty_params(difficulty):
     else:
         "medium"
 
+
 set_difficulty_params(difficulty)
 
 bird_group = pygame.sprite.Group()
@@ -183,6 +200,7 @@ pipe_group = pygame.sprite.Group()
 
 flappy = Bird(100, int(screen_height / 2))
 bird_group.add(flappy)
+
 
 ###super important leaderboard function
 def update_leaderboard(nickname, score):
@@ -219,6 +237,7 @@ def update_leaderboard(nickname, score):
     except Exception as e:
         print(f"Error updating leaderboard: {e}")
 
+
 def display_leaderboard():
     try:
         file_path = os.path.join(os.getcwd(), 'leaderboard.csv')
@@ -236,7 +255,8 @@ def display_leaderboard():
             y_offset = 150
             for row in reader:
                 print(f"Row: {row}")
-                draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 50, y_offset)
+                draw_text(f"{row[0]}: Last Score - {row[1]}, Best Score - {row[2]}", font, (255, 255, 255), screen, 50,
+                          y_offset)
                 y_offset += 40
 
         pygame.display.update()
@@ -244,36 +264,6 @@ def display_leaderboard():
     except Exception as e:
         print(f"Error displaying leaderboard: {e}")
 
-# Combining two sets of 2D data
-def combine_data(set1, set2):
-    combined = []
-    for data1, data2 in zip(set1, set2):
-        combined.append((data1, data2))
-    return combined
-
-# Categorizing or sorting data
-def sort_leaderboard_by_score(leaderboard):
-    return sorted(leaderboard, key=lambda x: int(x[2]), reverse=True)
-
-# Generating reports or insights
-def generate_report(leaderboard):
-    print("Generating report...")
-    report = {}
-    for player in leaderboard:
-        if player[0] not in report:
-            report[player[0]] = {'games_played': 0, 'best_score': 0}
-        report[player[0]]['games_played'] += 1
-        if int(player[2]) > report[player[0]]['best_score']:
-            report[player[0]]['best_score'] = int(player[2])
-    return report
-
-# Tracking progress or trends over time
-def track_progress(leaderboard, nickname):
-    progress = []
-    for game in leaderboard:
-        if game[0] == nickname:
-            progress.append((int(game[1]), int(game[2])))
-    return progress
 
 # making gradient
 def draw_gradient_rect(screen, rect, color_start, color_end):
@@ -285,6 +275,7 @@ def draw_gradient_rect(screen, rect, color_start, color_end):
         g = color_start[1] + (color_end[1] - color_start[1]) * i // h
         b = color_start[2] + (color_end[2] - color_start[2]) * i // h
         pygame.draw.line(screen, (r, g, b), (x, y + i), (x + w, y + i))
+
 
 def main_menu():
     menu = True
@@ -359,12 +350,14 @@ def main_menu():
 
         pygame.display.update()
 
+
 # main menu startup
 main_menu()
 
 # Create a transparent overlay surface
 overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
 overlay.fill((0, 0, 0, 128))
+
 
 def restart_game():
     restart = True
@@ -404,6 +397,7 @@ def restart_game():
 
     return False
 
+
 def reset_game():
     global flappy, scroll_speed, score, game_over, flying, pass_pipe, last_pipe
     bird_group.empty()
@@ -419,16 +413,19 @@ def reset_game():
     set_difficulty_params(difficulty)
     main_menu()
 
+
 top_border = 0
 run = True
 while run:
+
     clock.tick(fps)
 
     # background & base
     screen.blit(bg, (0, 0))
     screen.blit(base, (base_scroll, 750))
 
-    if not game_over and flying:
+    if game_over == False and flying == True:
+
         # generating new pipes
         time_now = pygame.time.get_ticks()
         if time_now - last_pipe > pipe_frequency:
@@ -445,7 +442,6 @@ while run:
     bird_group.update()
     pipe_group.draw(screen)
     pipe_group.update()
-
     # checking the score
     if len(pipe_group) > 0:
         bird = bird_group.sprites()[0]
@@ -457,6 +453,8 @@ while run:
                 score += 1
                 pass_pipe = False
 
+    # print(score)
+    # print(base_width)
     draw_text(str(score), (pygame.font.Font(my_font, 70)), (255, 255, 255), screen, int(285), 60)
 
     # collision
@@ -485,7 +483,7 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == MOUSEBUTTONDOWN and not flying and not game_over:
+        if event.type == MOUSEBUTTONDOWN and flying == False and game_over == False:
             flying = True
         if event.type == KEYDOWN and event.key == pygame.K_SPACE and not flying and not game_over:
             flying = True
@@ -493,28 +491,5 @@ while run:
 
 pygame.quit()
 
-# Example usage of the new functions
-leaderboard = [
-    ['player1', '5', '10'],
-    ['player2', '8', '8'],
-    ['player3', '3', '12'],
-    ['player1', '7', '10']
-]
 
-# Combine two sets of 2D data (example purpose)
-set1 = [(1, 2), (3, 4), (5, 6)]
-set2 = [(7, 8), (9, 10), (11, 12)]
-combined_data = combine_data(set1, set2)
-print("Combined Data:", combined_data)
 
-# Sort leaderboard by score
-sorted_leaderboard = sort_leaderboard_by_score(leaderboard)
-print("Sorted Leaderboard:", sorted_leaderboard)
-
-# Generate report
-report = generate_report(leaderboard)
-print("Report:", report)
-
-# Track progress
-progress = track_progress(leaderboard, 'player1')
-print("Progress:", progress)
